@@ -14,7 +14,8 @@ connectDB()
 app.use(express.json());
 
 ////////ROUTES/////////
-//app.use("/api/auth", authRoute);
+const authRoute = require("./routes/auth");
+app.use("/api/auth", authRoute);
 
 app.listen(port, () => {
   console.log(`TYA listening at http://localhost:${port}`)
