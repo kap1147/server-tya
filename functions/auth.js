@@ -1,26 +1,31 @@
 const passport = require("passport");
-const CLIENT_HOME_PAGE_URL = 'http://localhost:3001/';
+const CLIENT_HOME_PAGE_URL = 'http://theyardapp.com/';
 require('dotenv').config({path: './config/config.env'})
 const Profile = require("../models/Profile");
 
 const googleLogin = passport.authenticate('google', {scope: ['email', 'profile']})
 
+// return authentication, User and Profile
 const loginSuccess = async (req, res) => {
-    
-    let profile = await Profile.findOne({userID: req.user._id}).lean();
-    const currentUser = {
-        id: req.user._id,
-        email: req.user.email,
-        billingId: profile.billingID,
-        shippingId: profile.shippingID,
-        imageURL: profile.imageURL,
-        alias: profile.alias
-    }
-    return res.json({ user: currentUser, authenticated: true})
-        
+	if(!req.user){
+		return res.json({authenticated: false})
+	}
+    try{
+        let profile = await Profile.findOne({userID: req.user._id}).lean();
+        const currentUser = {
+            id: req.user._id,
+            email: req.user.email,
+            billingId: profile.billingID,
+            shippingId: profile.shippingID,
+            imageURL: profile.imageURL,
+            alias: profile.alias
+        }
+        return res.json({ user: currentUser, authenticated: true})
+    }catch(err){
+        return res.json({authenticated: false, message: err})
+    }       
         
 }
-
 const loginFailed = async (req, res) => {
     return res.status(401).json({
         authenticated: false,

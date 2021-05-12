@@ -9,7 +9,7 @@ router.get('/google', googleLogin);
 // Redirect to home page if login succeeded or to /auth/login/failed if failed
 router.get('/google/callback', googleCallback);
 // Returns login success response with user information
-router.get('/login/success', loginSuccess);
+router.get('/', loginSuccess);
 // Returns login failed message
 router.get('/login/failed', loginFailed);
 
