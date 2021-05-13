@@ -1,4 +1,7 @@
 const express = require('express');
+const https = require('https')
+const path = require('path')
+const fs = require('fs')
 const connectDB = require('./utils/db');
 const passport = require('passport');
 const cookieParser = require("cookie-parser");
@@ -33,6 +36,14 @@ app.use(
 const authRoute = require("./routes/auth");
 app.use("/api/auth", authRoute);
 
-app.listen(port, () => {
-  console.log(`TYA listening at http://localhost:${port}`)
-})
+///////SSL Server//////
+const sslServer = https.createServer(
+	{
+		key: fs.readFileSync(path.join(__dirname, 'cert', 'key.pem')),
+		cert: fs.readFileSync(path.join(__dirname, 'cert', 'cert.pem')),
+	},
+	app
+)
+
+sslServer.listen(3443, () => console.log('Secure server on port 3443'))
+
