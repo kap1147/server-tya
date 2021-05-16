@@ -60,7 +60,7 @@ passport.use(new FacebookStrategy({
     clientSecret: process.env.FACEBOOK_APP_SECRET,
     callbackURL: "https://theyardapp.com/api/auth/facebook/callback"
   },
-  function(accessToken, refreshToken, profile, cb) {
+  async function(accessToken, refreshToken, profile, cb) {
     // find current user in UserModel
     let currentUser = await User.findOne({
         facebookID: profile.id 
