@@ -25,7 +25,7 @@ passport.deserializeUser(async (id, done) => {
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "http://theyardapp.com/api/auth/google/callback"
+    callbackURL: "https://theyardapp.com/api/auth/google/callback"
   },
   async function(accessToken, refreshToken, profile, done) {
     // find current user in UserModel
@@ -51,5 +51,17 @@ passport.use(new GoogleStrategy({
         }
     }
     done(null, currentUser);
+  }
+));
+
+passport.use(new FacebookStrategy({
+    clientID: FACEBOOK_APP_ID,
+    clientSecret: FACEBOOK_APP_SECRET,
+    callbackURL: "https://theyardapp.com/auth/facebook/callback"
+  },
+  function(accessToken, refreshToken, profile, cb) {
+    User.findOrCreate({ facebookId: profile.id }, function (err, user) {
+      return cb(err, user);
+    });
   }
 ));

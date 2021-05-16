@@ -10,20 +10,12 @@ require('dotenv').config({path: './utils/config.env'});
 require('./utils/passport-setup');
 
 const app = express();
-const port = process.env.PORT ||5000;
+const port = process.env.PORT;
 
 
 connectDB()
 
 ////////MIDDLEWARES/////////
-//for parsing application/json
-app.use(express.json());
-// initalize passport
-app.use(passport.initialize());
-// deserialize cookie from the browser
-app.use(passport.session());
-// parse cookies
-app.use(cookieParser());
 // Add cookie session
 app.use(
   cookieSession({
@@ -32,6 +24,14 @@ app.use(
     maxAge: 24 * 60 * 60 * 100
   })
 );
+// for parsing application/json
+app.use(express.json());
+// initalize passport
+app.use(passport.initialize());
+// deserialize cookie from the browser
+app.use(passport.session());
+// parse cookies
+app.use(cookieParser());
 ////////ROUTES/////////
 const authRoute = require("./routes/auth");
 app.use("/api/auth", authRoute);
@@ -45,5 +45,5 @@ const sslServer = https.createServer(
 	app
 )
 
-sslServer.listen(3443, () => console.log('Secure server on port 3443'))
+sslServer.listen(port , () => console.log(`Secure server running on :${port}`))
 

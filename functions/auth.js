@@ -1,5 +1,5 @@
 const passport = require("passport");
-const CLIENT_HOME_PAGE_URL = 'http://theyardapp.com/';
+const CLIENT_HOME_PAGE_URL = 'https://theyardapp.com';
 require('dotenv').config({path: './config/config.env'})
 const Profile = require("../models/Profile");
 
