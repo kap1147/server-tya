@@ -44,8 +44,7 @@ const googleCallback = passport.authenticate('google', {
 })
 
 const facebookCallback = passport.authenticate('facebook', {
-        successRedirect: CLIENT_HOME_PAGE_URL,
-        failureRedirect: '/api/auth/login/failed'
+        failureRedirect: '/api/auth/'
 })
 
 

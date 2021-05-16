@@ -55,16 +55,15 @@ passport.use(new GoogleStrategy({
   }
 ));
 
+// TODO
+// create User and Profile from info received. 
 passport.use(new FacebookStrategy({
     clientID: process.env.FACEBOOK_APP_ID,
     clientSecret: process.env.FACEBOOK_APP_SECRET,
     callbackURL: "https://theyardapp.com/api/auth/facebook/callback"
   },
-  async function(accessToken, refreshToken, profile, cb) {
-    // find current user in UserModel
-    let currentUser = await User.findOne({
-        facebookID: profile.id 
-    }).lean();
-    done(null, currentUser);
+  function(accessToken, refreshToken, profile, done) {
+    console.log(profile);  
+    done(null, {_id: '609e713e253599c2ada2a720'})
   }
 ));
