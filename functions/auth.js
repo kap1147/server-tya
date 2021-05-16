@@ -3,8 +3,8 @@ const CLIENT_HOME_PAGE_URL = 'https://theyardapp.com';
 require('dotenv').config({path: './config/config.env'})
 const Profile = require("../models/Profile");
 
-const googleLogin = passport.authenticate('google', {scope: ['email', 'profile']})
-
+const googleLogin = passport.authenticate('google', {scope: ['email', 'profile']});
+const facebookLogin = passport.authenticate('facebook', { scope: ['user_friends', 'manage_pages'] });
 // return authentication, User and Profile
 const loginSuccess = async (req, res) => {
 	if(!req.user){
@@ -43,4 +43,10 @@ const googleCallback = passport.authenticate('google', {
         failureRedirect: '/api/auth/login/failed'
 })
 
-module.exports = {loginSuccess, loginFailed, logout, googleCallback, googleLogin};
+const facebookCallback = passport.authenticate('facebook', {
+        successRedirect: CLIENT_HOME_PAGE_URL,
+        failureRedirect: '/api/auth/login/failed'
+})
+
+
+module.exports = {loginSuccess, loginFailed, logout, googleCallback, googleLogin, facebookLogin, facebookCallback };

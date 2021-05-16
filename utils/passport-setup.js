@@ -58,11 +58,13 @@ passport.use(new GoogleStrategy({
 passport.use(new FacebookStrategy({
     clientID: process.env.FACEBOOK_APP_ID,
     clientSecret: process.env.FACEBOOK_APP_SECRET,
-    callbackURL: "https://theyardapp.com/auth/facebook/callback"
+    callbackURL: "https://theyardapp.com/api/auth/facebook/callback"
   },
   function(accessToken, refreshToken, profile, cb) {
-    User.findOrCreate({ facebookId: profile.id }, function (err, user) {
-      return cb(err, user);
-    });
+    // find current user in UserModel
+    let currentUser = await User.findOne({
+        facebookID: profile.id 
+    }).lean();
+    done(null, currentUser);
   }
 ));

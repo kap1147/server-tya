@@ -1,6 +1,6 @@
 const router = require("express").Router();
 /////Functions/////
-const { loginSuccess, googleLogin, googleCallback, loginFailed, logout } = require('../functions/auth');
+const { loginSuccess, googleLogin, googleCallback, facebookLogin, facebookCallback, loginFailed, logout } = require('../functions/auth');
 /////Middlewares/////
 //const {authCheck} = require("../middlewares/auth")
 /////ROUTES/////
@@ -9,6 +9,11 @@ router.get('/google', googleLogin);
 // Redirect to home page if login succeeded or to /auth/login/failed if failed
 router.get('/google/callback', googleCallback);
 // Returns login success response with user information
+// Authenticate via passport Facebook
+router.get('/facebook', facebookLogin);
+// Redirect to home page if login succeeded or to /auth/login/failed if failed
+router.get('/facebook/callback', facebookCallback);
+
 router.get('/', loginSuccess);
 // Returns login failed message
 router.get('/login/failed', loginFailed);
