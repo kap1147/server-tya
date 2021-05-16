@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const bidSchema = mongoose.Schema({
-  contractor: { type: mongoose.Schema.Types.ObjectId, ref: "Profile" },
+  contractorID: { type: mongoose.Schema.Types.ObjectId, ref: "Profile" },
   offer: Number,
   status: {
     type: String,
