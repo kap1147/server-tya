@@ -4,7 +4,7 @@ require('dotenv').config({path: './config/config.env'})
 const Profile = require("../models/Profile");
 
 const googleLogin = passport.authenticate('google', {scope: ['email', 'profile']});
-const facebookLogin = passport.authenticate('facebook', { scope: ['user_friends', 'manage_pages'] });
+const facebookLogin = passport.authenticate('facebook', { scope: ['email', 'public_profile'] });
 // return authentication, User and Profile
 const loginSuccess = async (req, res) => {
 	if(!req.user){
