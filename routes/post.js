@@ -1,6 +1,6 @@
 const router = require("express").Router();
 //Auth Middleware
-const auth = require("../middlewares/auth");
+const authCheck = require("../middlewares/authCheck");
 
 const {upload} = require('../utils/aws-multer-upload')
 
@@ -14,12 +14,12 @@ const {
   getAllPostHome,
 } = require("../functions/post");
 
-router.post("/", auth, upload.array('images', 5), addPost);
-router.delete("/", auth, deletePost);
+router.post("/", authCheck, upload.array('images', 5), addPost);
+router.delete("/", authCheck, deletePost);
 router.get("/search", getAllPost);
 router.post("/home", getAllPostHome);
 router.get("/:id", getPost);
-router.post("/:id/bid", auth, openBid);
-router.delete("/:id/bid", auth, deleteBid);
+router.post("/:id/bid", authCheck, openBid);
+router.delete("/:id/bid", authCheck, deleteBid);
 
 module.exports = router;
