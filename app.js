@@ -34,7 +34,9 @@ app.use(passport.session());
 app.use(cookieParser());
 ////////ROUTES/////////
 const authRoute = require("./routes/auth");
+const postRoute = require("./routes/post");
 app.use("/api/auth", authRoute);
+app.use("/api/posts", postRoute);
 
 ///////SSL Server//////
 const sslServer = https.createServer(
