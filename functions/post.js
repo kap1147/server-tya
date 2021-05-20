@@ -1,6 +1,6 @@
-const Post = require("../model/Post");
-const Profile = require("../model/Profile");
-const Bid = require("../model/Bid");
+const Post = require("../models/Post");
+const Profile = require("../models/Profile");
+const Bid = require("../models/Bid");
 const mongoose = require('mongoose');
 
 const deletePost = async (req, res) => {
