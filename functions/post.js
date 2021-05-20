@@ -26,7 +26,7 @@ const addPost = async (req, res) => {
   }
 
   let postData = {
-    author: req.user._id,
+    authorID: req.user._id,
     content: req.body.content,
     status: "open",
     price: req.body.price,
