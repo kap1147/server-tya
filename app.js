@@ -35,8 +35,10 @@ app.use(cookieParser());
 ////////ROUTES/////////
 const authRoute = require("./routes/auth");
 const postRoute = require("./routes/post");
+const tagRoute = require("./routes/tag");
 app.use("/api/auth", authRoute);
 app.use("/api/posts", postRoute);
+app.use("/api/tags", tagRoute);
 
 ///////SSL Server//////
 const sslServer = https.createServer(

@@ -56,17 +56,11 @@ const addPost = async (req, res) => {
 };
 
 const getPost = async (req, res) => {
-
-  try {
-    const post = await Post.findById(req.params.id)
-    .populate("likes")
-    .populate("author")
-    .populate("tags")
-    .populate("location");
-
-  return res.json(post);
-  } catch(err) { console.log(err)}
-  
+  Post.findOne({_id: req.params.id})
+		.populate('tagss')
+		.then(post => {
+      		  res.json(post)
+ 		 }) 
 };
 
 const getAllPost = async (req, res) => {
@@ -102,7 +96,7 @@ const getAllPostHome = async (req, res) => {
   };
   const posts = await Post.find(
     local
-  ).populate("author", "avatar");
+  ).populate("authorID" );
   return res.json(posts);
 };
 
