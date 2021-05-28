@@ -5,7 +5,8 @@ const tagSchema = new mongoose.Schema({
       type: String,
       required: true
   },
-  description: String,
+  desc: String,
+  icon: String
 });
 
 module.exports = mongoose.model("Tag", tagSchema);

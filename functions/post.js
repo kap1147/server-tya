@@ -75,11 +75,15 @@ const getAllPost = async (req, res) => {
       },
     },
   };
-  const posts = await Post.find(
-    local,
-    "content price location timestamp"
-  ).populate("author");
-  return res.json(posts);
+  try {
+    const posts = await Post.find(
+      local,
+      "authorID content price location timestamp"
+    ).populate("authorID");
+    return res.json(posts);
+  }catch(err){
+    return res.send({err: err })
+  }
 };
 
 const getAllPostHome = async (req, res) => {

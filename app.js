@@ -24,6 +24,8 @@ app.use(
     maxAge: 24 * 60 * 60 * 100
   })
 );
+//for parsing application/x-www-form-urlencoded
+app.use(express.urlencoded({ extended: true }));
 // for parsing application/json
 app.use(express.json());
 // initalize passport
