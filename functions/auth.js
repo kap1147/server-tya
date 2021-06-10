@@ -11,7 +11,7 @@ const loginSuccess = async (req, res) => {
 		return res.json({authenticated: false})
 	}
     try{
-        let profile = await Profile.findOne({userID: req.user._id}).lean();
+        let profile = await Profile.findById(req.user._id).lean();
         const currentUser = {
             id: req.user._id,
             email: req.user.email,

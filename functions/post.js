@@ -24,9 +24,8 @@ const addPost = async (req, res) => {
       tags.push(mongoose.Types.ObjectId(data[i]))
     }
   }
-
   let postData = {
-    authorID: req.user._id,
+    authorID: mongoose.Types.ObjectId(req.user._id),
     content: req.body.content,
     status: "open",
     price: req.body.price,
@@ -56,11 +55,8 @@ const addPost = async (req, res) => {
 };
 
 const getPost = async (req, res) => {
-  Post.findOne({_id: req.params.id})
-		.populate('tagss')
-		.then(post => {
-      		  res.json(post)
- 		 }) 
+  let post = await Post.findOne({_id: req.params.id}).populate("tags authorID")
+  return res.json(post)
 };
 
 const getAllPost = async (req, res) => {
@@ -100,7 +96,7 @@ const getAllPostHome = async (req, res) => {
   };
   const posts = await Post.find(
     local
-  ).populate("authorID" );
+  ).populate("authorID");
   return res.json(posts);
 };
 
@@ -108,8 +104,10 @@ const openBid = (req, res) => {
   let data = {
     contractor: req.user._id,
     status: "open",
-    content: req.body.message,
-    offer: req.body.offer,
+    offerPrice: req.body.offerPrice,
+    offerDate: req.body.offerDate,
+    timestamp: Date.now(),
+    paid: false
   };
   Bid.create(data, function (err, doc) {
     if (err) res.send(err);

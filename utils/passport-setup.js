@@ -43,7 +43,7 @@ passport.use(new GoogleStrategy({
         if (currentUser) {
           // create new profile for user
           await new Profile({
-          userID: currentUser.id,
+          _id: currentUser.id,
           imageURL: profile._json.picture,
           alias: profile._json.name,
           shippingID: null,
