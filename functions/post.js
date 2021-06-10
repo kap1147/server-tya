@@ -1,7 +1,9 @@
 const Post = require("../models/Post");
 const Profile = require("../models/Profile");
 const Bid = require("../models/Bid");
+const Notification = require("../models/Notification");
 const mongoose = require('mongoose');
+const { createNotification } = require("../utils/helpers");
 
 const deletePost = async (req, res) => {
   Post.findByIdAndDelete(req.body.id, function (err, doc) {
@@ -25,7 +27,7 @@ const addPost = async (req, res) => {
     }
   }
   let postData = {
-    authorID: mongoose.Types.ObjectId(req.user._id),
+    author: mongoose.Types.ObjectId(req.user._id),
     content: req.body.content,
     status: "open",
     price: req.body.price,
@@ -55,7 +57,7 @@ const addPost = async (req, res) => {
 };
 
 const getPost = async (req, res) => {
-  let post = await Post.findOne({_id: req.params.id}).populate("tags authorID")
+  let post = await Post.findOne({_id: req.params.id}).populate("tags author")
   return res.json(post)
 };
 
@@ -74,8 +76,8 @@ const getAllPost = async (req, res) => {
   try {
     const posts = await Post.find(
       local,
-      "authorID content price location timestamp"
-    ).populate("authorID");
+      "author content price location timestamp"
+    ).populate("author");
     return res.json(posts);
   }catch(err){
     return res.send({err: err })
@@ -96,7 +98,7 @@ const getAllPostHome = async (req, res) => {
   };
   const posts = await Post.find(
     local
-  ).populate("authorID");
+  ).populate("author");
   return res.json(posts);
 };
 
@@ -116,6 +118,14 @@ const openBid = (req, res) => {
       { $push: { bids: doc._id } },
       function (err, doc) {
         if (err) return res.send(err);
+	let notifyData = {
+          receiver: doc.author,
+          sender: req.user._id,
+	  desc: 'New bid created.',
+	  link: doc._id,
+	  flag: 'bid',
+	};
+        createNotification(notifyData);	
         return res.send({ message: "Bid placed." });
       }
     );

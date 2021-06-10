@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const postSchema = mongoose.Schema({
   content: String,
-  authorID: { type: mongoose.Schema.Types.ObjectId, ref: "Profile" },
+  author: { type: mongoose.Schema.Types.ObjectId, ref: "Profile" },
   status: {
     type: String,
     default: "open",
