@@ -1,8 +1,9 @@
 const express = require('express');
+const socketIo = require("socket.io");
 const https = require('https')
 const path = require('path')
 const fs = require('fs')
-const connectDB = require('./utils/db');
+const { connectDB, mongoose } = require('./utils/db');
 const passport = require('passport');
 const cookieParser = require("cookie-parser");
 const cookieSession = require("cookie-session");
@@ -52,4 +53,34 @@ const sslServer = https.createServer(
 )
 
 sslServer.listen(port , () => console.log(`Secure server running on :${port}`))
+
+///////Socket IO///////
+const io = socketIo(sslServer, {path: '/socket.io'});
+const connection = mongoose.connection;
+connection.once("open", () => {
+  console.log('MongoDB connection open');
+  const notificationChangeStream = connection.collection('notifications').watch();
+  
+  notificationChangeStream.on('change', (change) => {
+    switch (change.operationType) {
+      case 'insert':
+        const notification = change.fullDocument;
+	console.log(notification);
+    };
+  });
+});
+io.on('connection', async (socket) => {
+  console.log(`User connected to socket.`);
+
+  socket.on('disconnect', async () => {
+    try {
+       console.log('user disconnected');
+    } catch(err) { console.log(err) }
+  });
+  socket.on("ping", async () => {
+    console.log('ping');
+  });
+});
+
+
 
