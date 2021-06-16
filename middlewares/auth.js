@@ -6,4 +6,10 @@ const authCheck = (req, res, next) => {
   next();
 };
 
-module.exports = authCheck
+const addToken = (req, res, next) => {
+  if (req.user) {
+    console.log(req.user)
+  };
+};
+
+module.exports = {authCheck, addToken}

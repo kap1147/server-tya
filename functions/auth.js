@@ -1,16 +1,16 @@
-const passport = require("passport");
 const CLIENT_HOME_PAGE_URL = 'https://theyardapp.com';
-require('dotenv').config({path: './config/config.env'})
+require('dotenv').config({path: './config/config.env'});
+const User = require('../models/User');
 const Profile = require("../models/Profile");
-
-const googleLogin = passport.authenticate('google', {scope: ['email', 'profile']});
-const facebookLogin = passport.authenticate('facebook', { scope: ['email', 'public_profile'] });
+const { serialize, getToken, getGoogleProfile } = require('../utils/helpers');
 // return authentication, User and Profile
 const loginSuccess = async (req, res) => {
-	if(!req.user){
-		return res.json({authenticated: false})
-	}
+    if(!req.user){
+      console.log('No user!');
+      return res.json({authenticated: false})
+    }
     try{
+	console.log('User found!');
         let profile = await Profile.findById(req.user._id).lean();
         const currentUser = {
             id: req.user._id,
@@ -38,14 +38,55 @@ const logout = async (req, res) => {
     return res.redirect(CLIENT_HOME_PAGE_URL)
 }
 
-const googleCallback = passport.authenticate('google', {
-        successRedirect: CLIENT_HOME_PAGE_URL,
-        failureRedirect: '/api/auth/login/failed'
-})
+const googleCallback = async (req, res) => {
+  if (req.query.code) {
+    let data = serialize({
+      client_id: process.env.GOOGLE_CLIENT_ID,
+      client_secret: process.env.GOOGLE_CLIENT_SECRET,
+      code: req.query.code,
+      grant_type: 'authorization_code',
+      redirect_uri: 'https://theyardapp.com/api/auth/google/callback',
+    });
+    const redirectURI = ('https://oauth2.googleapis.com/token?' + data);
+    const tokenObj = await getToken(redirectURI);
+    const profile =  getGoogleProfile(tokenObj.id_token);
+    console.log(profile);
+    // find current user in UserModel
+    let currentUser = await User.findOne({
+        googleID: profile.sub 
+    }).lean();
+    // create new user if the database doesn't have this user
+    if (!currentUser){
+         currentUser = await new User({
+          googleID: profile.sub,
+          email: profile.email,
+        }).save()
+      if (currentUser) {
+        // create new profile for user
+        await new Profile({
+          _id: currentUser.id,
+          imageURL: profile.picture,
+          alias: profile.name,
+          shippingID: null,
+          billingID: null
+        }).save()
+      }
+    }
+    // TODO
+	  // Create session and JWTs 
+    return res.send(currentUser);
+  };
+}
 
-const facebookCallback = passport.authenticate('facebook', {
-        failureRedirect: '/api/auth/'
-})
+const googleLogin = (req, res) => {
+  let data = serialize({
+    client_id: process.env.GOOGLE_CLIENT_ID,
+    scope: 'email profile',
+    redirect_uri: 'https://theyardapp.com/api/auth/google/callback',
+    response_type: 'code'
+  })
+  const redirectURI = ('https://accounts.google.com/o/oauth2/v2/auth?' + data);
+  res.redirect(redirectURI);
+};
 
-
-module.exports = {loginSuccess, loginFailed, logout, googleCallback, googleLogin, facebookLogin, facebookCallback };
+module.exports = {loginSuccess, loginFailed, logout, googleCallback, googleLogin  };

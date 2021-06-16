@@ -1,23 +1,20 @@
 const router = require("express").Router();
-
+require('dotenv').config({path: './utils/config.env'});
 /////Functions/////
-const { loginSuccess, googleLogin, googleCallback, facebookLogin, facebookCallback, loginFailed, logout } = require('../functions/auth');
+const { loginSuccess, googleLogin, googleCallback, loginFailed, logout } = require('../functions/auth');
+const {addToken} = require('../middlewares/auth');
+const { serialize } = require('../utils/helpers');
 /////Middlewares/////
 //const {authCheck} = require("../middlewares/auth")
 /////ROUTES/////
+// For testing
+router.get('/google/auth', googleLogin);
 // Authenticate via passport Google
-router.get('/google', googleLogin);
+router.get('/google', googleLogin, addToken);
 // Redirect to home page if login succeeded or to /auth/login/failed if failed
 router.get('/google/callback', googleCallback);
 // Returns login success response with user information
 // Authenticate via passport Facebook
-router.get('/facebook', facebookLogin);
-// Redirect to home page if login succeeded or to /auth/login/failed if failed
-router.get('/facebook/callback', facebookCallback,
-	function(req, res) {
-		// Successful authentication, redirect home.
-		res.redirect('/');
-	});
 
 router.get('/', loginSuccess);
 // Returns login failed message

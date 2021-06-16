@@ -1,6 +1,6 @@
 const router = require("express").Router();
 //Auth Middleware
-const authCheck = require("../middlewares/authCheck");
+const {authCheck} = require("../middlewares/auth");
 
 const {upload} = require('../utils/aws-multer-upload')
 
