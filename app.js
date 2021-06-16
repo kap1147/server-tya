@@ -1,4 +1,5 @@
 const express = require('express');
+const cookieParser = require('cookie-parser');
 const socketIo = require("socket.io");
 const https = require('https')
 const path = require('path')
@@ -13,6 +14,8 @@ const port = process.env.PORT;
 connectDB()
 
 ////////MIDDLEWARES/////////
+// for parsing cookies
+app.use(cookieParser());
 //for parsing application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: true }));
 // for parsing application/json

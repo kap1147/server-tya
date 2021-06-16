@@ -2,11 +2,10 @@ const CLIENT_HOME_PAGE_URL = 'https://theyardapp.com';
 require('dotenv').config({path: './config/config.env'});
 const User = require('../models/User');
 const Profile = require("../models/Profile");
-const { serialize, getToken, getGoogleProfile } = require('../utils/helpers');
+const { serialize, getToken, getGoogleProfile, getSession, getUser } = require('../utils/helpers');
 // return authentication, User and Profile
 const loginSuccess = async (req, res) => {
     if(!req.user){
-      console.log('No user!');
       return res.json({authenticated: false})
     }
     try{
@@ -50,31 +49,15 @@ const googleCallback = async (req, res) => {
     const redirectURI = ('https://oauth2.googleapis.com/token?' + data);
     const tokenObj = await getToken(redirectURI);
     const profile =  getGoogleProfile(tokenObj.id_token);
-    console.log(profile);
     // find current user in UserModel
-    let currentUser = await User.findOne({
-        googleID: profile.sub 
-    }).lean();
-    // create new user if the database doesn't have this user
-    if (!currentUser){
-         currentUser = await new User({
-          googleID: profile.sub,
-          email: profile.email,
-        }).save()
-      if (currentUser) {
-        // create new profile for user
-        await new Profile({
-          _id: currentUser.id,
-          imageURL: profile.picture,
-          alias: profile.name,
-          shippingID: null,
-          billingID: null
-        }).save()
-      }
-    }
+    let currentUser = await getUser(profile);
     // TODO
-	  // Create session and JWTs 
-    return res.send(currentUser);
+    // Create session and JWTs
+    // get session
+    let {session, accessToken} = await getSession(currentUser._id);
+    res.cookie('refreshToken', session.refreshToken, {maxAge: 360000});
+    res.cookie('accessToken', accessToken, {maxAge: 36000});
+    return res.redirect(CLIENT_HOME_PAGE_URL);
   };
 }
 
