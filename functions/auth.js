@@ -2,14 +2,10 @@ const CLIENT_HOME_PAGE_URL = 'https://theyardapp.com';
 require('dotenv').config({path: './config/config.env'});
 const User = require('../models/User');
 const Profile = require("../models/Profile");
-const { serialize, getToken, getGoogleProfile, getSession, getUser } = require('../utils/helpers');
+const { serialize, getToken, getGoogleProfile, getSession, getUser, removeSession } = require('../utils/helpers');
 // return authentication, User and Profile
 const loginSuccess = async (req, res) => {
-    if(!req.user){
-      return res.json({authenticated: false})
-    }
     try{
-	console.log('User found!');
         let profile = await Profile.findById(req.user._id).lean();
         const currentUser = {
             id: req.user._id,
@@ -22,8 +18,7 @@ const loginSuccess = async (req, res) => {
         return res.json({ user: currentUser, authenticated: true})
     }catch(err){
         return res.json({authenticated: false, message: err})
-    }       
-        
+    }    
 }
 const loginFailed = async (req, res) => {
     return res.status(401).json({
@@ -33,8 +28,9 @@ const loginFailed = async (req, res) => {
 }
 
 const logout = async (req, res) => {
-    req.logout();
-    return res.redirect(CLIENT_HOME_PAGE_URL)
+    await removeSession(req.user._id);
+    res.clearCookie('refreshToken');
+    return res.send({authenticated: false});
 }
 
 const googleCallback = async (req, res) => {

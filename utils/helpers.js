@@ -86,4 +86,31 @@ async function getUser(profile){
   return currentUser;
 };
 
-module.exports = { createNotification, serialize, getToken, getGoogleProfile, getSession, getUser }
+async function verifySession(id) {
+    let session = await Session.findOne({userID: id});
+    if (session) {
+        jwt.verify(session.refreshToken, process.env.JWT_SECRET, function(err, decoded) {
+            if (err) {
+                return false;
+                /*
+                    err = {
+                        name: 'TokenExpiredError',
+                        message: 'jwt expired',
+                       expiredAt: 1408621000
+                    }
+               */
+            }
+            return true
+        });
+    };
+};
+
+async function removeSession(id){
+    let session = await Session.findOne({userID: id});
+    if (session) {
+        await session.remove();
+    }
+    return
+};
+
+module.exports = { createNotification, serialize, getToken, getGoogleProfile, getSession, getUser, verifySession, removeSession }
