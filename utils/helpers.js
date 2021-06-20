@@ -5,6 +5,39 @@ const fetch = require("node-fetch");
 var jwt = require('jsonwebtoken');
 require('dotenv').config({path: './config/config.env'});
 
+function deserializeToken(token, flag) {
+    try {
+        switch (flag) {
+            case 'a':
+	        return jwt.verify(token, process.env.JWT_ACCESS_SECRET)._id;
+            case 'r':
+                return jwt.verify(token, process.env.JWT_REFRESH_SECRET)._id;
+            default:
+	        return false;
+        };
+    } catch(err) {
+        return false;
+    }
+};
+
+const deserializeAccessToken = (token) => {
+    jwt.verify(token, process.env.JWT_ACCESS_SECRET, function(err, decoded){
+        if (decoded) return decoded;
+        if (err) return false;
+    });
+}
+
+function createToken(id, flag) {
+     switch (flag) {
+         case 'a': 
+	     return jwt.sign({_id: id}, process.env.JWT_ACCESS_SECRET, {expiresIn: '10m'});
+         case 'r':
+	     return jwt.sign({_id: id}, process.env.JWT_REFRESH_SECRET, {expiresIn: '6h'});
+         default:
+	     return false;
+     }
+};
+
 const createNotification = (data) => {
   Notification.create(data, function (err, doc){
     if(err) return err;
@@ -39,10 +72,10 @@ function getGoogleProfile(token){
   return decoded;
 };
 
-function createToken(userID, exp){
-  var token = jwt.sign({ _id: userID }, process.env.JWT_SECRET, {expiresIn: exp});
-  return token;
-};
+//function createToken(userID, exp){
+//  var token = jwt.sign({ _id: userID }, process.env.JWT_SECRET, {expiresIn: exp});
+//  return token;
+//};
 
 // Get or create session
 async function getSession(userID){
@@ -52,12 +85,12 @@ async function getSession(userID){
       if (err) console.log(err);
     });
   };
-  let refreshToken = createToken(userID, '4h');
+  let refreshToken = createToken(userID, 'r');
   session = await new Session({
     userID: userID,
     refreshToken: refreshToken
   }).save();
-  let accessToken = createToken(userID, '30m');   
+  let accessToken = createToken(userID, 'a');   
   return {session, accessToken: accessToken}; 
 };
 
@@ -113,4 +146,4 @@ async function removeSession(id){
     return
 };
 
-module.exports = { createNotification, serialize, getToken, getGoogleProfile, getSession, getUser, verifySession, removeSession }
+module.exports = { createNotification, serialize, getToken, getGoogleProfile, getSession, getUser, verifySession, removeSession, deserializeToken, deserializeAccessToken, createToken}

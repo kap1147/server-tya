@@ -1,8 +1,20 @@
+var jwt = require('jsonwebtoken');
 const CLIENT_HOME_PAGE_URL = 'https://theyardapp.com';
 require('dotenv').config({path: './config/config.env'});
 const User = require('../models/User');
 const Profile = require("../models/Profile");
-const { serialize, getToken, getGoogleProfile, getSession, getUser, removeSession } = require('../utils/helpers');
+const { serialize, getToken, getGoogleProfile, getSession, getUser, removeSession, deserializeToken, createToken } = require('../utils/helpers');
+
+const token = (req, res) => {
+    // Get refresh token from cookie
+    let token = req.cookies.refreshToken;
+    let id = deserializeToken(token, 'r');
+    // create new access token
+    let accessToken = createToken(id, 'a');
+    // send new token to client
+    return res.json({success: true, token: accessToken});
+};
+
 // return authentication, User and Profile
 const loginSuccess = async (req, res) => {
     try{
@@ -68,4 +80,4 @@ const googleLogin = (req, res) => {
   res.redirect(redirectURI);
 };
 
-module.exports = {loginSuccess, loginFailed, logout, googleCallback, googleLogin  };
+module.exports = {loginSuccess, loginFailed, logout, googleCallback, googleLogin, token};
