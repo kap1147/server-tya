@@ -5,6 +5,19 @@ const fetch = require("node-fetch");
 var jwt = require('jsonwebtoken');
 require('dotenv').config({path: './config/config.env'});
 
+async function validSession(id, token) {
+    try {
+        let session = await Session.findOne({userID: id, refreshToken: token});
+        if (session) {
+            return true
+        } else {
+            return false
+        };
+    } catch(err) {
+        return false;
+    };
+};
+
 function deserializeToken(token, flag) {
     try {
         switch (flag) {
@@ -90,8 +103,7 @@ async function getSession(userID){
     userID: userID,
     refreshToken: refreshToken
   }).save();
-  let accessToken = createToken(userID, 'a');   
-  return {session, accessToken: accessToken}; 
+  return session; 
 };
 
 async function getUser(profile){
@@ -146,4 +158,4 @@ async function removeSession(id){
     return
 };
 
-module.exports = { createNotification, serialize, getToken, getGoogleProfile, getSession, getUser, verifySession, removeSession, deserializeToken, deserializeAccessToken, createToken}
+module.exports = { createNotification, serialize, getToken, getGoogleProfile, getSession, getUser, verifySession, removeSession, deserializeToken, deserializeAccessToken, createToken, validSession}

@@ -3,16 +3,24 @@ const CLIENT_HOME_PAGE_URL = 'https://theyardapp.com';
 require('dotenv').config({path: './config/config.env'});
 const User = require('../models/User');
 const Profile = require("../models/Profile");
-const { serialize, getToken, getGoogleProfile, getSession, getUser, removeSession, deserializeToken, createToken } = require('../utils/helpers');
+const { serialize, getToken, getGoogleProfile, getSession, getUser, removeSession, deserializeToken, createToken, validSession } = require('../utils/helpers');
 
-const token = (req, res) => {
+const token = async (req, res) => {
     // Get refresh token from cookie
     let token = req.cookies.refreshToken;
     let id = deserializeToken(token, 'r');
-    // create new access token
-    let accessToken = createToken(id, 'a');
-    // send new token to client
-    return res.json({success: true, token: accessToken});
+    // validate session
+    let isValid = await validSession(id, token);
+    console.log(isValid)
+    if (isValid) {  
+        // create new access token
+        let accessToken = createToken(id, 'a');
+        // send new token to client
+        return res.json({success: true, token: accessToken});
+    } else {
+	res.clearCookie('refreshToken', {path: '/'});
+        return res.json({success: false});
+    };
 };
 
 // return authentication, User and Profile
@@ -41,7 +49,7 @@ const loginFailed = async (req, res) => {
 
 const logout = async (req, res) => {
     await removeSession(req.user._id);
-    res.clearCookie('refreshToken');
+    res.clearCookie('refreshToken', {path: '/'});
     return res.send({authenticated: false});
 }
 
@@ -62,9 +70,8 @@ const googleCallback = async (req, res) => {
     // TODO
     // Create session and JWTs
     // get session
-    let {session, accessToken} = await getSession(currentUser._id);
-    res.cookie('refreshToken', session.refreshToken, {maxAge: 360000});
-    res.cookie('accessToken', accessToken, {maxAge: 36000});
+    let session = await getSession(currentUser._id);
+    res.cookie('refreshToken', session.refreshToken, {path: '/', maxAge: 360000});
     return res.redirect(CLIENT_HOME_PAGE_URL);
   };
 }
